@@ -14,6 +14,10 @@ tableRouter.put("/table", (req: Request, res: Response) => {
     updateData(req, res);
 });
 
+tableRouter.delete("/table", (req: Request, res: Response) => {
+    deleteData(req, res);
+});
+
 async function getData(req: Request, res: Response): Promise<Response> {
     const conn = await connect();
     const result = await conn.query("SELECT * FROM onetable");
@@ -21,15 +25,21 @@ async function getData(req: Request, res: Response): Promise<Response> {
 }
 
 async function updateData(req: Request, res: Response) {
-    console.debug(req);
     const updateData: Onetable = req.body;
-    console.debug(updateData);
     const id = updateData.id;
-    console.debug("ids:" + id)
     const conn = await connect();
     await conn.query(`UPDATE onetable SET ? WHERE id = ?`, [updateData.data, id])
     return res.json({
         message: "Onetable updated"
     })
+
 }
 
+async function deleteData(req: Request, res: Response) {
+    const deleteId = req.query.id;
+    const conn = await connect();
+    await conn.query(`DELETE FROM onetable WHERE id = ?`, [deleteId]);
+    return res.json({
+        message: "Data deleted"
+    })
+}
