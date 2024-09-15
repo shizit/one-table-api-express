@@ -10,6 +10,10 @@ tableRouter.get("/table", (req: Request, res: Response) => {
     getData(req, res);
 });
 
+tableRouter.post("/table", (req: Request, res: Response) => {
+    registerData(req, res);
+});
+
 tableRouter.put("/table", (req: Request, res: Response) => {
     updateData(req, res);
 });
@@ -24,11 +28,19 @@ async function getData(req: Request, res: Response): Promise<Response> {
     return res.json(result[0]);
 }
 
-async function updateData(req: Request, res: Response) {
-    const updateData: Onetable = req.body;
-    const id = updateData.id;
+async function registerData(req: Request, res: Response): Promise<Response> {
     const conn = await connect();
-    await conn.query(`UPDATE onetable SET ? WHERE id = ?`, [updateData.data, id])
+    const registerData: Onetable = req.body;
+    await conn.query(`INSERT INTO onetable SET ?`, [registerData.data])
+    return res.json({
+        message: "Onetable registered"
+    });
+}
+
+async function updateData(req: Request, res: Response) {
+    const conn = await connect();
+    const updateData: Onetable = req.body;
+    await conn.query(`UPDATE onetable SET ? WHERE id = ?`, [updateData.data, updateData.id])
     return res.json({
         message: "Onetable updated"
     })
@@ -36,8 +48,8 @@ async function updateData(req: Request, res: Response) {
 }
 
 async function deleteData(req: Request, res: Response) {
-    const deleteId = req.query.id;
     const conn = await connect();
+    const deleteId = req.query.id;
     await conn.query(`DELETE FROM onetable WHERE id = ?`, [deleteId]);
     return res.json({
         message: "Data deleted"
